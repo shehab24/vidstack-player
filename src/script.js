@@ -1,9 +1,5 @@
 import { render } from 'react-dom';
-import { MediaPlayer, MediaProvider } from '@vidstack/react';
-import { defaultLayoutIcons, DefaultVideoLayout } from '@vidstack/react/player/layouts/default';
-import { Poster } from '@vidstack/react';
-import { SeekButton } from "@vidstack/react";
-import { SeekBackwardIcon, SeekForwardIcon } from '@vidstack/react/icons';
+import ReactPlayer from 'react-player';
 
 import './style.scss';
 import Style from './Style';
@@ -28,6 +24,7 @@ const BlockName = ({ attributes }) => {
 	const { items, columns, layout, content, icon, img, video, posterUrl } = attributes;
 
 	return <div className={`vidstackMediaPlayer columns-${columns.desktop} columns-tablet-${columns.tablet} columns-mobile-${columns.mobile} ${layout || 'vertical'}`}>
-
+		<ReactPlayer controls light={posterUrl.url} url={video.url} />;
 	</div>
+
 }

@@ -19,3 +19,13 @@ define( 'VIDSTACK_DIR_URL', plugin_dir_url( __FILE__ ) );
 define( 'VIDSTACK_DIR_PATH', plugin_dir_path( __FILE__ ) );
 
 require_once VIDSTACK_DIR_PATH . 'inc/block.php';
+require_once VIDSTACK_DIR_PATH . 'class/class-vidstack-player.php';
+require_once VIDSTACK_DIR_PATH . 'elementor-widget/elementor-vidstack-player.php';
+
+
+function vidstack_plugin_run(){
+     new Vidstack_Player_Details();
+
+  
+}
+vidstack_plugin_run();
