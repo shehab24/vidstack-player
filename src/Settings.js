@@ -13,7 +13,7 @@ import { emUnit, perUnit, pxUnit } from '../../Components/utils/options';
 import { generalStyleTabs, layouts } from './utils/options';
 
 const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiveIndex }) => {
-	const { items, columns, columnGap, rowGap, layout, alignment, textAlign, width, background, typography, color, colors, isIcon, icon, img, separator, padding, margin, border, shadow, video, posterUrl } = attributes;
+	const { items, columns, columnGap, rowGap, layout, alignment, textAlign, width, background, typography, color, colors, isIcon, icon, img, separator, padding, margin, border, shadow, video, posterUrl, videoTitle, isCaption, isChapter, captionUrl, chapterUrl } = attributes;
 
 	const [device, setDevice] = useState('desktop');
 
@@ -91,12 +91,22 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 
 					<PanelBody className='bPlPanelBody' title={__('Add Video Information', 'textdomain')} initialOpen={true}>
 						<InlineDetailMediaUpload types='video' label="Enter Your Video Url" value={video} onChange={(val) => { setAttributes({ video: val }) }} />
+						<Label>{__('Enter Video Title:', 'textdomain')}</Label>
+						<TextControl value={videoTitle} onChange={val => setAttributes({ videoTitle: val })} />
 
 						<InlineDetailMediaUpload className="mt20" types='image' label="Enter Your Poster Url" value={posterUrl} onChange={(val) => { setAttributes({ posterUrl: val }) }} />
 
-						{/* <ToggleControl label={__('Toggle?', 'textdomain')} checked={isIcon} onChange={val => setAttributes({ isIcon: val })} />
+						<ToggleControl className='mt20' label={__('Show Caption Option?', 'textdomain')} checked={isCaption} onChange={val => setAttributes({ isCaption: val })} />
+						{isCaption && <Label>{__('Enter Caption Url:', 'textdomain')}</Label>}
+						{isCaption && <TextControl placeholder='Enter a Source link' value={captionUrl} help="Example:https://example.com/subtitle.vtt" onChange={val => setAttributes({ captionUrl: val })} />}
 
-						<CheckboxControl className='mt20' label={__('Toggle?', 'textdomain')} checked={isIcon} onChange={val => setAttributes({ isIcon: val })} />
+						<ToggleControl className='mt20' label={__('Show Chapters Option?', 'textdomain')} checked={isChapter} onChange={val => setAttributes({ isChapter: val })} />
+						{isChapter && <Label>{__('Enter Chapters Url:', 'textdomain')}</Label>}
+						{isChapter && <TextControl placeholder='Enter a Source link' value={chapterUrl} help="Example:https://example.com/chapters.vtt" onChange={val => setAttributes({ chapterUrl: val })} />}
+
+
+
+						{/*<CheckboxControl className='mt20' label={__('Toggle?', 'textdomain')} checked={isIcon} onChange={val => setAttributes({ isIcon: val })} />
 
 						<PanelRow>
 							<Label mt='0' mb='0'>{__('Layout:', 'textdomain')}</Label>

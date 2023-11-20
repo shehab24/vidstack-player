@@ -1,12 +1,14 @@
 import { render } from 'react-dom';
-import ReactPlayer from 'react-player';
-
 import './style.scss';
 import Style from './Style';
+import 'vidstack/player';
+import 'vidstack/player/layouts';
+import 'vidstack/player/ui';
 
-// Block Name
+
 document.addEventListener('DOMContentLoaded', () => {
 	const blockEls = document.querySelectorAll('.wp-block-vidstack-mediaPlayer');
+
 	blockEls.forEach(blockEl => {
 		const attributes = JSON.parse(blockEl.dataset.attributes);
 
@@ -21,10 +23,36 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const BlockName = ({ attributes }) => {
-	const { items, columns, layout, content, icon, img, video, posterUrl } = attributes;
+	const { items, columns, layout, content, icon, img, video, posterUrl, videoTitle, isCaption, isChapter, chapterUrl, captionUrl } = attributes;
 
-	return <div className={`vidstackMediaPlayer columns-${columns.desktop} columns-tablet-${columns.tablet} columns-mobile-${columns.mobile} ${layout || 'vertical'}`}>
-		<ReactPlayer controls light={posterUrl.url} url={video.url} />;
-	</div>
 
+
+	return (
+
+		<media-player title={videoTitle} src={video.url}>
+			<media-provider>
+				{isCaption && <track
+					src={captionUrl}
+					kind="subtitles"
+					label="English"
+					default
+					data-type="vtt"
+				/>
+				}
+				{isChapter && <track
+					src={chapterUrl}
+					kind="chapters"
+					default
+					data-type="vtt"
+				/>
+				}
+				<media-poster
+					class="vds-poster"
+					src={posterUrl.url}
+				></media-poster>
+
+			</media-provider>
+			<media-video-layout ></media-video-layout>
+		</media-player>
+	)
 }

@@ -5,12 +5,15 @@ class Vidstack_Player_Details_Admin{
     public function admin_enqueue_scripts($hook_suffix){
         
             wp_enqueue_script( 'vidstack-player-admin', VIDSTACK_DIR_URL. 'admin/js/vidstack-player-admin.js', array('jquery'), 1.0, true );
+            wp_enqueue_script( 'media-player-vidstack', 'https://cdn.jsdelivr.net/npm/vidstack@^1.0.0/cdn/with-layouts/vidstack.js');
         
     }
 
     public function admin_enqueue_style($hook_suffix){
         
             wp_enqueue_style( 'vidstack-player-admin', VIDSTACK_DIR_URL. 'admin/css/vidstack-player-admin.css', array(), 1.0 );
+            wp_enqueue_style( 'media-player-theme', "https://cdn.jsdelivr.net/npm/vidstack@^1.0.0/player/styles/default/theme.min.css" );
+            wp_enqueue_style( 'media-player-video', "https://cdn.jsdelivr.net/npm/vidstack@^1.0.0/player/styles/default/layouts/video.min.css" );
         
     }
 

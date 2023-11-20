@@ -2,6 +2,7 @@
 class vidstackMediaPlayer{
 	public function __construct(){
 		add_action( 'enqueue_block_assets', [$this, 'enqueueBlockAssets'] );
+		add_filter( 'script_loader_tag', [$this, 'scriptLoaderTag'], 10, 3 );
 		add_action( 'init', [$this, 'onInit'] );
 	}
 
@@ -9,8 +10,16 @@ class vidstackMediaPlayer{
 		wp_register_style( 'fontAwesome', VIDSTACK_DIR_URL . 'assets/css/font-awesome.min.css', [], '6.4.2' ); // Icon
 	}
 
+	function scriptLoaderTag( $tag, $handle, $src ){
+		if ( 'vidstack' !== $handle ) {
+			return $tag;
+		}
+		$tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
+		return $tag;
+	}
+
 	function onInit() {
-		wp_register_style( 'vidstack-mediaPlayer-style', VIDSTACK_DIR_URL . 'dist/style.css', [ 'fontAwesome' ], VIDSTACK_VERSION ); // Style
+		wp_register_style( 'vidstack-mediaPlayer-style', VIDSTACK_DIR_URL . 'dist/style.css', [], VIDSTACK_VERSION ); // Style
 		wp_register_style( 'vidstack-mediaPlayer-editor-style', VIDSTACK_DIR_URL . 'dist/editor.css', [ 'vidstack-mediaPlayer-style' ], VIDSTACK_VERSION ); // Backend Style
 
 		register_block_type( __DIR__, [

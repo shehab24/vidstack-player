@@ -26,11 +26,31 @@
 				"title": "Vidstack Media Player"
 			}
 		},
+		"videoTitle": {
+			"type": "string",
+			"default": "Vidstack Media Player"
+		},
 		"posterUrl": {
 			"type": "object",
 			"default": {
 				"url": "https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/thumbnail.webp"
 			}
+		},
+		"isCaption": {
+			"type": "boolean",
+			"default": true
+		},
+		"captionUrl": {
+			"type": "string",
+			"default": "https://media-files.vidstack.io/sprite-fight/subs/english.vtt"
+		},
+		"chapterUrl": {
+			"type": "string",
+			"default": "https://media-files.vidstack.io/sprite-fight/chapters.vtt"
+		},
+		"isChapter": {
+			"type": "boolean",
+			"default": true
 		},
 		"items": {
 			"type": "array",

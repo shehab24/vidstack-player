@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { produce } from 'immer';
 import ReactPlayer from 'react-player';
 import Plyr from "plyr-react"
-
-
-
-
+import 'vidstack/player';
+import 'vidstack/player/layouts';
+import 'vidstack/player/ui';
 
 
 // Settings Components
@@ -19,7 +18,7 @@ import Style from './Style';
 
 const Edit = props => {
 	const { className, attributes, setAttributes, clientId, isSelected } = props;
-	const { items, columns, layout, content, icon, img, video, posterUrl } = attributes;
+	const { items, columns, layout, content, icon, img, video, posterUrl, videoTitle, isCaption, isChapter, chapterUrl, captionUrl } = attributes;
 
 	useEffect(() => { clientId && setAttributes({ cId: clientId.substring(0, 10) }); }, [clientId]); // Set & Update clientId to cId
 
@@ -41,9 +40,12 @@ const Edit = props => {
 
 	setAttributes(() => {
 		setRender(!render);
-	}, [video, posterUrl])
+	}, [video, posterUrl, videoTitle])
 
-	const Player = () => <ReactPlayer controls light={posterUrl.url} url={video.url} />;
+
+
+
+
 
 	return <>
 		<Settings attributes={attributes} setAttributes={setAttributes} updateItem={updateItem} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
@@ -51,9 +53,35 @@ const Edit = props => {
 		<div className={className} id={`vidstackMediaPlayer-${clientId}`}>
 			<Style attributes={attributes} clientId={clientId} />
 
-			<Player />
+			<media-player title={videoTitle} src={video.url}>
+				<media-provider>
+					{isCaption && <track
+						src={captionUrl}
+						kind="subtitles"
+						label="English"
+						default
+						data-type="vtt"
+					/>
+					}
+					{isChapter && <track
+						src={chapterUrl}
+						kind="chapters"
+						default
+						data-type="vtt"
+					/>
+					}
+					<media-poster
+						class="vds-poster"
+						src={posterUrl.url}
+					></media-poster>
+
+				</media-provider>
+				<media-video-layout ></media-video-layout>
+			</media-player>
 
 		</div >
 	</>;
 };
+
+
 export default Edit;

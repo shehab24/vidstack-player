@@ -51,6 +51,14 @@ class Elementor_oEmbed_Widget extends \Elementor\Widget_Base {
 		return 'eicon-carousel-loop';
 	}
 
+	public function get_style_depends() {
+		return [ 'media-player-theme' , 'media-player-video' ];
+	}
+
+	public function get_script_depends() {
+		return [ 'media-player-vidstack' ];
+	}
+
 	/**
 	 * Get custom help URL.
 	 *
@@ -155,16 +163,14 @@ class Elementor_oEmbed_Widget extends \Elementor\Widget_Base {
 
 		$settings = $this->get_settings_for_display();
 		$post_id =  $settings['vidstack_video_player'] ;
-        $block_content = get_post_field('post_content', $post_id);
         if ( '' === $post_id ) {
 			echo '<div style="text-align: center; margin-top: 0; padding: 10px" class="elementor-add-section-drag-title">Select a shortcode</div>';
 			return;
 		}
-
 		echo '<div class="vidstack-video-elementor-widget">';	
-        // echo do_shortcode('[vidstack_player id='. $post_id.']');
-        echo apply_filters('the_content', $block_content);
+        echo do_shortcode('[vidstack_player_elementor id='. $post_id.']');
 		echo '</div>';
+		
 
 	}
 

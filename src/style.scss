@@ -1,6 +1,6 @@
-@import '@vidstack/react/player/styles/default/theme.css';
-@import '@vidstack/react/player/styles/default/layouts/video.css';
-@import "plyr-react/plyr.css";
+@import 'vidstack/player/styles/default/theme.css';
+@import 'vidstack/player/styles/default/layouts/video.css';
+
 $primaryColor: #4527a4;
 
 // Common CSS
@@ -31,6 +31,8 @@ html {
 		width: 100%;
 		max-width: 100%;
 	}
+
+
 }
 
 .block-editor__container img {
