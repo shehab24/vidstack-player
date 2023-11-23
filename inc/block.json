@@ -48,9 +48,27 @@
 			"type": "string",
 			"default": "https://media-files.vidstack.io/sprite-fight/chapters.vtt"
 		},
+		"buildedUrl": {
+			"type": "string",
+			"default": ""
+		},
 		"isChapter": {
 			"type": "boolean",
-			"default": true
+			"default": false
+		},
+		"chapterSource": {
+			"type": "string",
+			"default": "file"
+		},
+		"chapterItems": {
+			"type": "array",
+			"default": [
+				{
+					"start": "00:00",
+					"end": "01:00",
+					"chapterText": "Chapter 1"
+				}
+			]
 		},
 		"items": {
 			"type": "array",
@@ -113,6 +131,67 @@
 		"color": {
 			"type": "string",
 			"default": "#333"
+		},
+		"captionColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"captionBgColor": {
+			"type": "string"
+		},
+		"chapterColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"chapterBgColor": {
+			"type": "string"
+		},
+		"settingsColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"settingsBgColor": {
+			"type": "string"
+		},
+		"volumeColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"volumeBgColor": {
+			"type": "string"
+		},
+		"mediaTimeColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"playbtnColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"playbtnBgColor": {
+			"type": "string"
+		},
+		"pipbtnColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"pipbtnBgColor": {
+			"type": "string"
+		},
+		"screenbtnColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"screenbtnBgColor": {
+			"type": "string"
+		},
+		"mediaTitleColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"globalSliderColor": {
+			"type": "string",
+			"default": "#fff"
 		},
 		"colors": {
 			"type": "object",

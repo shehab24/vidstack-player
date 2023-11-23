@@ -8,6 +8,7 @@ class Vidstack_Player_Details_Public{
         
             wp_enqueue_script( 'vidstack-player-public', VIDSTACK_DIR_URL. 'public/js/vidstack-player-public.js', array('jquery'), 1.0, true );
             wp_enqueue_script( 'media-player-vidstack', 'https://cdn.jsdelivr.net/npm/vidstack@^1.0.0/cdn/with-layouts/vidstack.js');
+    
         
     }
      public function public_enqueue_style($hook_suffix){

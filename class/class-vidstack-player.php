@@ -39,6 +39,10 @@ class Vidstack_Player_Details {
       add_filter('use_block_editor_for_post', array($this , 'use_block_editor_callback'),  10, 2);
       add_shortcode('vidstack_player', array($this , 'my_vidstack_player_block_shortcode'));
       add_shortcode('vidstack_player_elementor', array($this , 'vidstack_player_elementor_shortcode'));
+      add_action('admin_enqueue_scripts', array($this , 'register_ajax_request_script'));
+      add_action('wp_ajax_upload_chapter_data_media', array($this , 'upload_chapter_data_media_callback'));
+
+      
      }
 
      public function use_block_editor_callback($use_block_editor, $post_type){
@@ -85,7 +89,7 @@ class Vidstack_Player_Details {
       ob_start();
       ?>
       
-      <media-player title='<?php echo $videoTitle ?>' src='<?php echo $videoUrl ?>'>
+      <media-player title='<?php echo $videoTitle ?>' src='<?php echo $videoUrl ?>' playsinline>
 			<media-provider>
             <?php
             if($isCaption == 1 ) :
@@ -133,6 +137,74 @@ class Vidstack_Player_Details {
 
    }
      
+
+   public function register_ajax_request_script(){
+    
+      wp_enqueue_script( 'rest-uploader', plugins_url( 'src/settings.js', dirname( __FILE__ ) ), [ 'jquery' ] );
+      $js_vars = [
+         'endpoint' => admin_url('admin-ajax.php'),
+         'nonce'    => wp_create_nonce( 'wp_rest' ),
+      ];
+      wp_localize_script( 'rest-uploader', 'RestVars', $js_vars );
+   
+      
+   }
+
+   public function upload_chapter_data_media_callback(){
+      $formData = isset($_POST['formdata'])? $_POST['formdata'] : '' ;
+         
+      $vttc = $this->generate_vtt_content($formData);
+
+
+      $upload_dir = wp_upload_dir();
+
+     
+      $file_path = $upload_dir['path'] . '/chapters-'.rand().'.vtt';
+
+      file_put_contents($file_path, $vttc);
+
+      if (!file_exists($file_path)) {
+         return false;
+     }
+
+      $file = [
+         'name'     => basename($file_path),
+         'type'     => 'text/vtt',
+         'tmp_name' => $file_path,
+         'error'    => 0,
+         'size'     => filesize($file_path),
+      ];
+
+      $attachment_id = media_handle_sideload($file, 0);
+
+      if (is_wp_error($attachment_id)) {
+            return false;
+      }
+
+      $attachment_url = wp_get_attachment_url($attachment_id);
+
+    echo json_encode(array('result' => 'success', 'data' => $vttc , 'upload_url'=> $attachment_url));
+
+    wp_die();
+
+   }
+
+
+   public function generate_vtt_content($chapters) {
+      $content = "WEBVTT\n\n";
+  
+      foreach ($chapters as $chapter) {
+          $start =$chapter['start'];
+          $end = $chapter['end'];
+  
+          $content .= "{$start} --> {$end}\n";
+          $content .= "{$chapter['chapterText']}\n\n";
+      }
+  
+      return $content;
+  }
+  
+
    
 
   

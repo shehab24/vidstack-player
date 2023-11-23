@@ -9,5 +9,10 @@ export const layouts = [
 
 export const generalStyleTabs = [
 	{ name: 'general', title: __('General', 'textdomain') },
-	// { name: 'style', title: __('Style', 'textdomain') }
+	{ name: 'style', title: __('Style', 'textdomain') }
+];
+
+export const sourceType = [
+	{ label: __('File', 'textdomain'), value: 'file' },
+	{ label: __('Build Your Own', 'textdomain'), value: 'build_own' }
 ];

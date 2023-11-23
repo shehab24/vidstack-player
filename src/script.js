@@ -23,13 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const BlockName = ({ attributes }) => {
-	const { items, columns, layout, content, icon, img, video, posterUrl, videoTitle, isCaption, isChapter, chapterUrl, captionUrl } = attributes;
+	const { items, columns, layout, content, icon, img, video, posterUrl, videoTitle, isCaption, isChapter, chapterUrl, captionUrl, chapterSource, buildedUrl } = attributes;
 
 
 
 	return (
 
-		<media-player title={videoTitle} src={video.url}>
+		<media-player title={videoTitle} src={video.url} playsinline>
 			<media-provider>
 				{isCaption && <track
 					src={captionUrl}
@@ -40,7 +40,11 @@ const BlockName = ({ attributes }) => {
 				/>
 				}
 				{isChapter && <track
-					src={chapterUrl}
+					src={
+						chapterSource === 'build_own'
+							? buildedUrl
+							: chapterUrl
+					}
 					kind="chapters"
 					default
 					data-type="vtt"

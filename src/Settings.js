@@ -5,26 +5,70 @@ import { PanelBody, PanelRow, TabPanel, TextControl, ToggleControl, SelectContro
 import { produce } from 'immer';
 
 // Settings Components
-import { Label, Background, BColor, BDevice, BorderControl, BtnGroup, ColorsControl, IconControl, InlineDetailMediaUpload, MultiShadowControl, SeparatorControl, SpaceControl, Typography } from '../../Components';
+import { Label, Background, BColor, BDevice, BorderControl, BtnGroup, ColorsControl, IconControl, InlineDetailMediaUpload, MultiShadowControl, SeparatorControl, SpaceControl, Typography, InlineMediaUpload } from '../../Components';
 import { gearIcon } from '../../Components/utils/icons';
 import { tabController } from '../../Components/utils/functions';
 import { emUnit, perUnit, pxUnit } from '../../Components/utils/options';
 
-import { generalStyleTabs, layouts } from './utils/options';
+import { generalStyleTabs, layouts, sourceType } from './utils/options';
 
 const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiveIndex }) => {
-	const { items, columns, columnGap, rowGap, layout, alignment, textAlign, width, background, typography, color, colors, isIcon, icon, img, separator, padding, margin, border, shadow, video, posterUrl, videoTitle, isCaption, isChapter, captionUrl, chapterUrl } = attributes;
+	const { items, chapterItems, columns, columnGap, rowGap, layout, chapterSource, alignment, textAlign, width, background, typography, color, colors, isIcon, icon, img, separator, padding, margin, border, shadow, video, posterUrl, videoTitle, isCaption, isChapter, captionUrl, chapterUrl, captionColor, captionBgColor, chapterColor, settingsColor, volumeColor, mediaTimeColor, globalSliderColor, chapterBgColor, settingsBgColor, volumeBgColor, playbtnColor, playbtnBgColor, pipbtnColor, pipbtnBgColor, screenbtnBgColor, screenbtnColor, mediaTitleColor, buildedUrl } = attributes;
 
 	const [device, setDevice] = useState('desktop');
 
+	const buildNow = () => {
+		const vttContent = `WEBVTT
+			${chapterItems.map((item, index) => {
+			return `
+				${item.start} --> ${item.end}
+				${item.chapterText}\n
+				`
+		}).join('')}
+		`;
+
+
+
+
+		jQuery.ajax({
+			type: 'POST',
+			url: RestVars.endpoint,
+			data: {
+				action: 'upload_chapter_data_media',
+				formdata: chapterItems,
+			},
+			success(response) {
+				const newRes = JSON.parse(response);
+				setAttributes({ buildedUrl: newRes.upload_url });
+
+
+
+			}
+		});
+
+	};
+
+
+
+
 	const addItem = () => {
+		const prevL = chapterItems.length;
+
 		setAttributes({
-			items: [...items, {
-				number: 10,
-				text: 'Vertical'
+			chapterItems: [...chapterItems, {
+				start: chapterItems[prevL - 1].end,
+				end: "",
+				chapterText: `Chapter ${prevL + 1}`
 			}]
 		});
 		setActiveIndex(items.length);
+	}
+
+	const updateChapter = (index, property, val) => {
+		const newChapter = produce(chapterItems, draft => {
+			draft[index][property] = val;
+		});
+		setAttributes({ chapterItems: newChapter });
 	}
 
 	const updateAllItem = (type, val, otherType = false) => {
@@ -48,12 +92,9 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 		setActiveIndex(activeIndex + 1);
 	}
 
-	const removeItem = e => {
+	const removeItem = (e, index) => {
 		e.preventDefault();
-
-		setAttributes({ items: [...items.slice(0, activeIndex), ...items.slice(activeIndex + 1)] });
-
-		setActiveIndex(0 === activeIndex ? 0 : activeIndex - 1);
+		setAttributes({ chapterItems: [...chapterItems.slice(0, index), ...chapterItems.slice(index + 1)] });
 	}
 
 	const { number = '', text = '' } = items[activeIndex] || {};
@@ -67,14 +108,16 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 
 			<TabPanel className='bPlTabPanel' activeClass='activeTab' tabs={generalStyleTabs} onSelect={tabController}>{tab => <>
 				{'general' === tab.name && <>
-					{/* <PanelBody className='bPlPanelBody addRemoveItems editItem' title={__('Add or Remove Items', 'textdomain')}>
+					<PanelBody className='bPlPanelBody addRemoveItems editItem' title={__('Add or Remove Items', 'textdomain')}>
 						{null !== activeIndex && <>
 							<h3 className='bplItemTitle'>{__(`Item ${activeIndex + 1}:`, 'textdomain')}</h3>
 
-							<NumberControl className='mt20' label={__('Number:', 'textdomain')} labelPosition='left' value={number} onChange={val => updateItem('number', val)} />
+							<PanelRow>
 
-							<Label>{__('Text:', 'textdomain')}</Label>
-							<TextControl value={text} onChange={val => updateItem('text', val)} />
+								<TextControl label="Start" value={text} onChange={val => updateItem('text', val)} />
+								<TextControl label="Start" value={text} onChange={val => updateItem('text', val)} />
+							</PanelRow>
+
 
 							<PanelRow className='itemAction mt20 mb15'>
 								{1 < items?.length && <Button className='removeItem' label={__('Remove', 'textdomain')} onClick={removeItem}><Dashicon icon='no' />{__('Remove', 'textdomain')}</Button>}
@@ -86,7 +129,7 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 						<div className='addItem'>
 							<Button label={__('Add New Card', 'textdomain')} onClick={addItem}><Dashicon icon='plus' size={23} />{__('Add New Card', 'textdomain')}</Button>
 						</div>
-					</PanelBody> */}
+					</PanelBody>
 
 
 					<PanelBody className='bPlPanelBody' title={__('Add Video Information', 'textdomain')} initialOpen={true}>
@@ -100,9 +143,7 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 						{isCaption && <Label>{__('Enter Caption Url:', 'textdomain')}</Label>}
 						{isCaption && <TextControl placeholder='Enter a Source link' value={captionUrl} help="Example:https://example.com/subtitle.vtt" onChange={val => setAttributes({ captionUrl: val })} />}
 
-						<ToggleControl className='mt20' label={__('Show Chapters Option?', 'textdomain')} checked={isChapter} onChange={val => setAttributes({ isChapter: val })} />
-						{isChapter && <Label>{__('Enter Chapters Url:', 'textdomain')}</Label>}
-						{isChapter && <TextControl placeholder='Enter a Source link' value={chapterUrl} help="Example:https://example.com/chapters.vtt" onChange={val => setAttributes({ chapterUrl: val })} />}
+
 
 
 
@@ -125,6 +166,64 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 
 						<UnitControl className='mt20' label={__('Width:', 'textdomain')} labelPosition='left' value={width} onChange={val => setAttributes({ width: val })} units={[pxUnit(900), perUnit(100), emUnit(56)]} isResetValueOnUnitChange={true} />
 						<small>{__('Keep width 0, to auto width.', 'textdomain')}</small> */}
+					</PanelBody>
+
+					<PanelBody className='bPlPanelBody' title={__('Add Chapter', 'textdomain')} initialOpen={false}>
+						<ToggleControl className='mt20' label={__('Show Chapters Option?', 'textdomain')} checked={isChapter} onChange={val => setAttributes({ isChapter: val })} />
+
+						{isChapter && <Label mt='0' mb='0'>{__('Source type:', 'b-blocks')}</Label>}
+						{isChapter && <RadioControl selected={chapterSource} onChange={(val) => {
+							setAttributes({ chapterSource: val })
+
+						}} options={sourceType} />}
+
+						{chapterSource == "file" && isChapter && <InlineMediaUpload label="Enter a Url/File" value={chapterUrl} onChange={val => setAttributes({ chapterUrl: val })} className="mt10" types={['vtt']} />}
+
+
+
+						{chapterSource == "build_own" && isChapter && <PanelBody className='bPlPanelBody addRemoveItems editItem mt20' title={__('Add Chapter TimeFrame', 'textdomain')}>
+
+
+
+							{
+								chapterItems.map((item, index) => {
+
+									const { start, end, chapterText } = item;
+
+									return (
+										<div key={index}>
+
+											<PanelRow >
+
+												<TextControl label="Start" value={start} onChange={val => updateChapter(index, 'start', val)} />
+												<TextControl label="End" value={end} onChange={val => updateChapter(index, 'end', val)} />
+											</PanelRow>
+											<TextControl placeholder='Enter Chapter Title' value={chapterText} onChange={val => updateChapter(index, 'chapterText', val)} />
+											<PanelRow className='itemAction mt20 mb15'>
+												{1 < chapterItems?.length && <Button className='removeItem' label={__('Remove', 'textdomain')} onClick={(e) => removeItem(e, index)}><Dashicon icon='no' />{__('Remove', 'textdomain')}</Button>}
+											</PanelRow>
+										</div>
+									)
+								})
+							}
+
+
+
+
+
+							<div className='addItem'>
+								<Button label={__('Add New ', 'textdomain')} onClick={addItem}><Dashicon icon='plus' size={23} />{__('Add New ', 'textdomain')}</Button>
+
+							</div>
+
+							<div className='itemAction mt20 '>
+								<Button className='removeItem' label={__('Build Now', 'textdomain')} onClick={buildNow} ><Dashicon icon='plus' />{__('Build Now', 'textdomain')}</Button>
+
+								<TextControl className='mt10' placeholder='Builded Url Will be here' value={buildedUrl} />
+							</div>
+
+
+						</PanelBody>}
 					</PanelBody>
 
 
@@ -156,8 +255,66 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 				</>}
 
 
-				{/* {'style' === tab.name && <>
-					<PanelBody className='bPlPanelBody' title={__('Custom Style', 'textdomain')}>
+				{'style' === tab.name && <>
+					<PanelBody className='bPlPanelBody' title={__('All Control Style', 'textdomain')}>
+
+						<PanelBody className='bPlPanelBody' title={__('Global Slider Style', 'textdomain')}>
+							<BColor label={__('Slider Control Color:', 'textdomain')} value={globalSliderColor} onChange={val => setAttributes({ globalSliderColor: val })} />
+						</PanelBody>
+
+
+						<PanelBody className='bPlPanelBody' title={__('Caption Control Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={captionBgColor} onChange={val => setAttributes({ captionBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__(' Icon Color:', 'textdomain')} value={captionColor} onChange={val => setAttributes({ captionColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+						<PanelBody className='bPlPanelBody' title={__('Chapter Control Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={chapterBgColor} onChange={val => setAttributes({ chapterBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__(' Icon Color:', 'textdomain')} value={chapterColor} onChange={val => setAttributes({ chapterColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+						<PanelBody className='bPlPanelBody' title={__('Settings Control Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={settingsBgColor} onChange={val => setAttributes({ settingsBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__('Icon Color:', 'textdomain')} value={settingsColor} onChange={val => setAttributes({ settingsColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+
+						<PanelBody className='bPlPanelBody' title={__('Volume Control Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={volumeBgColor} onChange={val => setAttributes({ volumeBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__('Icon Color:', 'textdomain')} value={volumeColor} onChange={val => setAttributes({ volumeColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+
+						<PanelBody className='bPlPanelBody' title={__('Play Button Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={playbtnBgColor} onChange={val => setAttributes({ playbtnBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__('Icon Color:', 'textdomain')} value={playbtnColor} onChange={val => setAttributes({ playbtnColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+						<PanelBody className='bPlPanelBody' title={__('Pip Button Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={pipbtnBgColor} onChange={val => setAttributes({ pipbtnBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__('Icon Color:', 'textdomain')} value={pipbtnColor} onChange={val => setAttributes({ pipbtnColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+						<PanelBody className='bPlPanelBody' title={__('Full Screen Button Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__(' Background Color:', 'textdomain')} value={screenbtnBgColor} onChange={val => setAttributes({ screenbtnBgColor: val })} defaultColor='#ffffff33' />
+							<BColor label={__('Icon Color:', 'textdomain')} value={screenbtnColor} onChange={val => setAttributes({ screenbtnColor: val })} defaultColor='#fff' />
+						</PanelBody>
+
+
+
+
+
+
+
+						<BColor label={__('Media Time Color:', 'textdomain')} value={mediaTimeColor} onChange={val => setAttributes({ mediaTimeColor: val })} defaultColor='#fff' />
+
+						<BColor label={__('Media Title Color:', 'textdomain')} value={mediaTitleColor} onChange={val => setAttributes({ mediaTitleColor: val })} defaultColor='#fff' />
+
+					</PanelBody>
+
+
+
+					{/* <PanelBody className='bPlPanelBody' title={__('Custom Style', 'textdomain')}>
 						<Background label={__('Background:', 'textdomain')} value={background} onChange={val => setAttributes({ background: val })} />
 
 						<Typography className='mt20' label={__('Typography:', 'textdomain')} value={typography} onChange={val => setAttributes({ typography: val })} defaults={{ fontSize: 25 }} produce={produce} />
@@ -175,8 +332,8 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 						<BorderControl label={__('Border:', 'textdomain')} value={border} onChange={val => setAttributes({ border: val })} defaults={{ radius: '5px' }} />
 
 						<MultiShadowControl label={__('Shadow:', 'textdomain')} value={shadow} onChange={val => setAttributes({ shadow: val })} produce={produce} />
-					</PanelBody>
-				</>} */}
+					</PanelBody> */}
+				</>}
 			</>}</TabPanel>
 		</InspectorControls>
 
