@@ -12,6 +12,13 @@ export const generalStyleTabs = [
 	{ name: 'style', title: __('Style', 'textdomain') }
 ];
 
+export const playerTab = [
+	{ value: 'video', label: __('Vidstack Video', 'textdomain') },
+	{ value: 'audio', label: __('Vidstack Audio', 'textdomain') },
+
+
+];
+
 export const sourceType = [
 	{ label: __('File', 'textdomain'), value: 'file' },
 	{ label: __('Build Your Own', 'textdomain'), value: 'build_own' }

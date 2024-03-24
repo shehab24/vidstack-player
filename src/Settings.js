@@ -10,10 +10,10 @@ import { gearIcon } from '../../Components/utils/icons';
 import { tabController } from '../../Components/utils/functions';
 import { emUnit, perUnit, pxUnit } from '../../Components/utils/options';
 
-import { generalStyleTabs, layouts, sourceType } from './utils/options';
+import { generalStyleTabs, layouts, sourceType, playerTab } from './utils/options';
 
 const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiveIndex }) => {
-	const { items, chapterItems, columns, columnGap, rowGap, layout, chapterSource, alignment, textAlign, width, background, typography, color, colors, isIcon, icon, img, separator, padding, margin, border, shadow, video, posterUrl, videoTitle, isCaption, isChapter, captionUrl, chapterUrl, captionColor, captionBgColor, chapterColor, settingsColor, volumeColor, mediaTimeColor, globalSliderColor, chapterBgColor, settingsBgColor, volumeBgColor, playbtnColor, playbtnBgColor, pipbtnColor, pipbtnBgColor, screenbtnBgColor, screenbtnColor, mediaTitleColor, buildedUrl } = attributes;
+	const { items, chapterItems, columns, columnGap, rowGap, layout, chapterSource, alignment, textAlign, width, background, typography, color, colors, isIcon, icon, img, separator, padding, margin, border, shadow, video, audio, posterUrl, audioPosterUrl, videoTitle, audioTitle, isCaption, isChapter, captionUrl, chapterUrl, captionColor, captionBgColor, chapterColor, settingsColor, volumeColor, mediaTimeColor, globalSliderColor, chapterBgColor, settingsBgColor, volumeBgColor, playbtnColor, playbtnBgColor, pipbtnColor, pipbtnBgColor, screenbtnBgColor, screenbtnColor, mediaTitleColor, buildedUrl, tabs, globalPrimaryColor, globalSecondaryColor, captionItems } = attributes;
 
 	const [device, setDevice] = useState('desktop');
 
@@ -28,7 +28,7 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 		`;
 
 
-
+		setAttributes({ buildedUrl: "" });
 
 		jQuery.ajax({
 			type: 'POST',
@@ -39,6 +39,7 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 			},
 			success(response) {
 				const newRes = JSON.parse(response);
+
 				setAttributes({ buildedUrl: newRes.upload_url });
 
 
@@ -61,7 +62,16 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 				chapterText: `Chapter ${prevL + 1}`
 			}]
 		});
-		setActiveIndex(items.length);
+
+	}
+	const addCaptionItem = () => {
+		setAttributes({
+			captionItems: [...captionItems, {
+				captionUrl: "",
+				label: `English-${captionItems.length + 1}`
+			}]
+		});
+
 	}
 
 	const updateChapter = (index, property, val) => {
@@ -69,6 +79,12 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 			draft[index][property] = val;
 		});
 		setAttributes({ chapterItems: newChapter });
+	}
+	const updateCaption = (index, property, val) => {
+		const newCaption = produce(captionItems, draft => {
+			draft[index][property] = val;
+		});
+		setAttributes({ captionItems: newCaption });
 	}
 
 	const updateAllItem = (type, val, otherType = false) => {
@@ -97,6 +113,11 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 		setAttributes({ chapterItems: [...chapterItems.slice(0, index), ...chapterItems.slice(index + 1)] });
 	}
 
+	const removeCaptionItem = (e, index) => {
+		e.preventDefault();
+		setAttributes({ captionItems: [...captionItems.slice(0, index), ...captionItems.slice(index + 1)] });
+	}
+
 	const { number = '', text = '' } = items[activeIndex] || {};
 
 
@@ -108,64 +129,75 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 
 			<TabPanel className='bPlTabPanel' activeClass='activeTab' tabs={generalStyleTabs} onSelect={tabController}>{tab => <>
 				{'general' === tab.name && <>
-					<PanelBody className='bPlPanelBody addRemoveItems editItem' title={__('Add or Remove Items', 'textdomain')}>
-						{null !== activeIndex && <>
-							<h3 className='bplItemTitle'>{__(`Item ${activeIndex + 1}:`, 'textdomain')}</h3>
+					<PanelBody className='bPlPanelBody' title={__('Select Media Type', 'textdomain')} initialOpen={true}>
+						<Label mt='0' mb='0'>{__('Media type:', 'b-blocks')}</Label>
+						<RadioControl selected={tabs} onChange={(val) => { setAttributes({ tabs: val }) }} options={playerTab} />
+					</PanelBody>
+					{"video" === tabs &&
+						<PanelBody className='bPlPanelBody' title={__('Add Video Information', 'textdomain')} initialOpen={false}>
+							<InlineDetailMediaUpload types='video' label="Enter Your Video Url" value={video} onChange={(val) => { setAttributes({ video: val }) }} />
+							<Label>{__('Enter Video Title:', 'textdomain')}</Label>
+							<TextControl value={videoTitle} onChange={val => setAttributes({ videoTitle: val })} />
 
-							<PanelRow>
+							<InlineDetailMediaUpload className="mt20" types='image' label="Enter Your Poster Url" value={posterUrl} onChange={(val) => { setAttributes({ posterUrl: val }) }} />
 
-								<TextControl label="Start" value={text} onChange={val => updateItem('text', val)} />
-								<TextControl label="Start" value={text} onChange={val => updateItem('text', val)} />
-							</PanelRow>
+							{/* <ToggleControl className='mt20' label={__('Show Caption Option?', 'textdomain')} checked={isCaption} onChange={val => setAttributes({ isCaption: val })} />
+							{isCaption && <Label>{__('Enter Caption Url:', 'textdomain')}</Label>}
+							{isCaption && <TextControl placeholder='Enter a Source link' value={captionUrl} help="Example:https://example.com/subtitle.vtt" onChange={val => setAttributes({ captionUrl: val })} />} */}
+						</PanelBody>
+					}
 
 
-							<PanelRow className='itemAction mt20 mb15'>
-								{1 < items?.length && <Button className='removeItem' label={__('Remove', 'textdomain')} onClick={removeItem}><Dashicon icon='no' />{__('Remove', 'textdomain')}</Button>}
+					{"audio" === tabs &&
+						<PanelBody className='bPlPanelBody' title={__('Add Audio Information', 'textdomain')} initialOpen={false}>
+							<InlineDetailMediaUpload types='audio' label="Enter Your Audio Url" value={audio} onChange={(val) => { setAttributes({ audio: val }) }} />
+							<Label>{__('Enter Audio Title:', 'textdomain')}</Label>
+							<TextControl value={audioTitle} onChange={val => setAttributes({ audioTitle: val })} />
 
-								<Button className='duplicateItem' label={__('Duplicate', 'textdomain')} onClick={duplicateItem}>{gearIcon}{__('Duplicate', 'textdomain')}</Button>
-							</PanelRow>
+							<InlineDetailMediaUpload className="mt20" types='image' label="Enter Your Poster Url" value={audioPosterUrl} onChange={(val) => { setAttributes({ audioPosterUrl: val }) }} />
+
+							{/* <ToggleControl className='mt20' label={__('Show Caption Option?', 'textdomain')} checked={isCaption} onChange={val => setAttributes({ isCaption: val })} />
+							{isCaption && <Label>{__('Enter Caption Url:', 'textdomain')}</Label>}
+							{isCaption && <TextControl placeholder='Enter a Source link' value={captionUrl} help="Example:https://example.com/subtitle.vtt" onChange={val => setAttributes({ captionUrl: val })} />} */}
+						</PanelBody>
+					}
+
+					<PanelBody className='bPlPanelBody' title={__('Add Caption', 'textdomain')} initialOpen={false}>
+						<ToggleControl className='mt20' label={__('Show Caption Option?', 'textdomain')} checked={isCaption} onChange={val => setAttributes({ isCaption: val })} />
+						{isCaption && <>
+							{
+								captionItems.map((item, index) => {
+									const { captionUrl, label, } = item;
+
+									return (
+										<div key={index}>
+
+											<>
+												<Label>{__('Enter Caption Title:', 'textdomain')}</Label>
+												<TextControl value={label} onChange={val => updateCaption(index, 'label', val)} />
+
+
+
+
+												<Label>{__('Enter Caption Url:', 'textdomain')}</Label>
+												<TextControl placeholder='Enter a Source link' value={captionUrl} help="Example:https://example.com/subtitle.vtt" onChange={val => updateCaption(index, 'captionUrl', val)} />
+
+
+												<PanelRow className='itemAction mt20 mb15'>
+													{1 < captionItems?.length && <Button className='removeItem' label={__('Remove', 'textdomain')} onClick={(e) => removeCaptionItem(e, index)}><Dashicon icon='no' />{__('Remove', 'textdomain')}</Button>}
+												</PanelRow>
+											</>
+										</div>
+									)
+								})
+							}
+							<div className='addItem'>
+								<Button label={__('Add New ', 'textdomain')} onClick={addCaptionItem}><Dashicon icon='plus' size={23} />{__('Add New ', 'textdomain')}</Button>
+
+							</div>
+
 						</>}
 
-						<div className='addItem'>
-							<Button label={__('Add New Card', 'textdomain')} onClick={addItem}><Dashicon icon='plus' size={23} />{__('Add New Card', 'textdomain')}</Button>
-						</div>
-					</PanelBody>
-
-
-					<PanelBody className='bPlPanelBody' title={__('Add Video Information', 'textdomain')} initialOpen={true}>
-						<InlineDetailMediaUpload types='video' label="Enter Your Video Url" value={video} onChange={(val) => { setAttributes({ video: val }) }} />
-						<Label>{__('Enter Video Title:', 'textdomain')}</Label>
-						<TextControl value={videoTitle} onChange={val => setAttributes({ videoTitle: val })} />
-
-						<InlineDetailMediaUpload className="mt20" types='image' label="Enter Your Poster Url" value={posterUrl} onChange={(val) => { setAttributes({ posterUrl: val }) }} />
-
-						<ToggleControl className='mt20' label={__('Show Caption Option?', 'textdomain')} checked={isCaption} onChange={val => setAttributes({ isCaption: val })} />
-						{isCaption && <Label>{__('Enter Caption Url:', 'textdomain')}</Label>}
-						{isCaption && <TextControl placeholder='Enter a Source link' value={captionUrl} help="Example:https://example.com/subtitle.vtt" onChange={val => setAttributes({ captionUrl: val })} />}
-
-
-
-
-
-						{/*<CheckboxControl className='mt20' label={__('Toggle?', 'textdomain')} checked={isIcon} onChange={val => setAttributes({ isIcon: val })} />
-
-						<PanelRow>
-							<Label mt='0' mb='0'>{__('Layout:', 'textdomain')}</Label>
-							<SelectControl value={layout} onChange={val => {
-								setAttributes({ layout: val });
-								'vertical' === val && updateAllItem('number', 10);
-								'horizontal' === val && updateAllItem('number', 20);
-							}} options={layouts} />
-						</PanelRow>
-						<small>{__('Some settings may change when layout will be changed.', 'textdomain')}</small>
-
-						<PanelRow>
-							<Label mt='0' mb='0'>{__('Layout:', 'b-blocks')}</Label>
-							<RadioControl selected={layout} onChange={val => setAttributes({ layout: val })} options={layouts} />
-						</PanelRow>
-
-						<UnitControl className='mt20' label={__('Width:', 'textdomain')} labelPosition='left' value={width} onChange={val => setAttributes({ width: val })} units={[pxUnit(900), perUnit(100), emUnit(56)]} isResetValueOnUnitChange={true} />
-						<small>{__('Keep width 0, to auto width.', 'textdomain')}</small> */}
 					</PanelBody>
 
 					<PanelBody className='bPlPanelBody' title={__('Add Chapter', 'textdomain')} initialOpen={false}>
@@ -177,7 +209,9 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 
 						}} options={sourceType} />}
 
-						{chapterSource == "file" && isChapter && <InlineMediaUpload label="Enter a Url/File" value={chapterUrl} onChange={val => setAttributes({ chapterUrl: val })} className="mt10" types={['vtt']} />}
+						{chapterSource == "file" && isChapter && <InlineMediaUpload label="Enter a Url/File" value={chapterUrl} onChange={(val) => {
+							setAttributes({ chapterUrl: val })
+						}} className="mt10" types={['vtt']} />}
 
 
 
@@ -256,13 +290,37 @@ const Settings = ({ attributes, setAttributes, updateItem, activeIndex, setActiv
 
 
 				{'style' === tab.name && <>
-					<PanelBody className='bPlPanelBody' title={__('All Control Style', 'textdomain')}>
 
-						<PanelBody className='bPlPanelBody' title={__('Global Slider Style', 'textdomain')}>
-							<BColor label={__('Slider Control Color:', 'textdomain')} value={globalSliderColor} onChange={val => setAttributes({ globalSliderColor: val })} />
+					<PanelBody className='bPlPanelBody' title={__('Global Color Style', 'textdomain')} initialOpen={true}>
+						<BColor label={__('Primary/Hover Color:', 'textdomain')} value={globalPrimaryColor} onChange={(val) => {
+							setAttributes({ globalPrimaryColor: val });
+							setAttributes({ captionBgColor: val });
+							setAttributes({ chapterBgColor: val });
+							setAttributes({ settingsBgColor: val });
+							setAttributes({ volumeBgColor: val });
+							setAttributes({ playbtnBgColor: val });
+							setAttributes({ pipbtnBgColor: val });
+							setAttributes({ screenbtnBgColor: val });
+							setAttributes({ globalSliderColor: val });
+						}} defaultColor='#ffffff33' />
+						<BColor label={__('Secondary/Icon Color:', 'textdomain')} value={globalSecondaryColor} onChange={(val) => {
+							setAttributes({ globalSecondaryColor: val })
+							setAttributes({ captionColor: val })
+							setAttributes({ chapterColor: val })
+							setAttributes({ settingsColor: val })
+							setAttributes({ volumeColor: val })
+							setAttributes({ playbtnColor: val })
+							setAttributes({ pipbtnColor: val })
+							setAttributes({ screenbtnColor: val })
+							setAttributes({ mediaTimeColor: val })
+							setAttributes({ mediaTitleColor: val })
+						}} defaultColor='#fff' />
+
+					</PanelBody>
+					<PanelBody className='bPlPanelBody' title={__('All Control Style', 'textdomain')} initialOpen={false}>
+						<PanelBody className='bPlPanelBody' title={__('Slider Control Color', 'textdomain')} initialOpen={false}>
+							<BColor label={__('Global Slider Color:', 'textdomain')} value={globalSliderColor} onChange={val => setAttributes({ globalSliderColor: val })} defaultColor='#fff' />
 						</PanelBody>
-
-
 						<PanelBody className='bPlPanelBody' title={__('Caption Control Color', 'textdomain')} initialOpen={false}>
 							<BColor label={__(' Background Color:', 'textdomain')} value={captionBgColor} onChange={val => setAttributes({ captionBgColor: val })} defaultColor='#ffffff33' />
 							<BColor label={__(' Icon Color:', 'textdomain')} value={captionColor} onChange={val => setAttributes({ captionColor: val })} defaultColor='#fff' />

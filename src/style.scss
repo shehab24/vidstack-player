@@ -1,5 +1,6 @@
 @import 'vidstack/player/styles/default/theme.css';
 @import 'vidstack/player/styles/default/layouts/video.css';
+@import 'vidstack/player/styles/default/layouts/audio.css';
 
 $primaryColor: #4527a4;
 
@@ -41,4 +42,8 @@ html {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+media-controls-group.vds-controls-group {
+	display: flex;
 }

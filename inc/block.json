@@ -19,6 +19,10 @@
 			"type": "string",
 			"default": ""
 		},
+		"tabs": {
+			"type": "string",
+			"default": "video"
+		},
 		"video": {
 			"type": "object",
 			"default": {
@@ -26,11 +30,28 @@
 				"title": "Vidstack Media Player"
 			}
 		},
+		"audio": {
+			"type": "object",
+			"default": {
+				"url": "https://media-files.vidstack.io/sprite-fight/audio.mp3",
+				"title": "Vidstack Media Player"
+			}
+		},
 		"videoTitle": {
 			"type": "string",
 			"default": "Vidstack Media Player"
 		},
+		"audioTitle": {
+			"type": "string",
+			"default": "Vidstack Media Player"
+		},
 		"posterUrl": {
+			"type": "object",
+			"default": {
+				"url": "https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/thumbnail.webp"
+			}
+		},
+		"audioPosterUrl": {
 			"type": "object",
 			"default": {
 				"url": "https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/thumbnail.webp"
@@ -67,6 +88,15 @@
 					"start": "00:00",
 					"end": "01:00",
 					"chapterText": "Chapter 1"
+				}
+			]
+		},
+		"captionItems": {
+			"type": "array",
+			"default": [
+				{
+					"captionUrl": "https://media-files.vidstack.io/sprite-fight/subs/english.vtt",
+					"label": "English"
 				}
 			]
 		},
@@ -190,6 +220,13 @@
 			"default": "#fff"
 		},
 		"globalSliderColor": {
+			"type": "string",
+			"default": "#fff"
+		},
+		"globalPrimaryColor": {
+			"type": "string"
+		},
+		"globalSecondaryColor": {
 			"type": "string",
 			"default": "#fff"
 		},
